@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Top stack to be used for Ansible, or any other aws practice
+
+Parameters:
+    #------------------------
+    # Deployment Information
+    #------------------------
+    Environment:
+      Type: String
+      Description: Name of the environment to use in naming.
+    CloudToolsBucket:
+      Type: String
+      Description: Name of the bucket this stack is being deployed from
+
+
+Resources:
+
+  VPC:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub 'https://s3.${AWS::Region}.amazonaws.com/${CloudToolsBucket}/vpc.yaml'
+      Parameters:
+        EnvironmentName: !Ref Environment
+        KeyName: Bastion Host
+        KeyNameTwo: Jenkins Box
+
+  Ansible:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub 'https://s3.${AWS::Region}.amazonaws.com/${CloudToolsBucket}/ansible.yaml'
+      Parameters:
+        EnvironmentName: !Ref Environment
+        VPC: !GetAtt VPC.Outputs.VPC
+        SecurityGroup: !GetAtt VPC.Outputs.MySecurityGroup
+        PublicSubnet1: !GetAtt VPC.Outputs.PublicSubnet1
+        PrivateSubnet1: !GetAtt VPC.Outputs.PrivateSubnet1
+        KeyNameTwo: Jenkins Box #Name does not make sense here but I didnt want to make a new key
+

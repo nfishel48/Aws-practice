@@ -1,0 +1,67 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Stack to create ansible master node
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      AMI: ami-1853ac65
+    us-west-1:
+      AMI: ami-bf5540df
+    eu-west-1:
+      AMI: ami-3bfab942
+    ap-southeast-1:
+      AMI: ami-e2adf99e
+    ap-southeast-2:
+      AMI: ami-43874721
+    ap-south-1:
+      AMI: ami-0ebc1ac48dfd14136
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: Name of the environment to use in naming.
+  VPC:
+    Type: String
+    Description: VPC that resources will belong too
+  SecurityGroup:
+    Type: String
+    Description: Security Group to place instances into
+  PublicSubnet1:
+    Type: String
+    Description: Public subnet in the vpc
+  PrivateSubnet1:
+    Type: String
+    Description: Private subnet in the vpc
+  KeyNameTwo:
+    Type: String
+    Description: Key to connect to instance
+
+Resources:
+  MasterNode:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      ImageId:
+        Fn::FindInMap:
+          - RegionMap
+          - !Ref AWS::Region
+          - AMI
+      Tags:
+        - Key: Name
+          Value: "Master Node"
+      KeyName: !Ref KeyNameTwo
+      UserData: !Base64
+              Fn::Sub: |
+                  #!/bin/bash
+                  sudo su
+                  yum update -y
+                  yum install epel-release -y
+                  yum install ansible -y
+                    
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: true
+          DeviceIndex: "1"
+          GroupSet:
+            - Ref: "SecurityGroup"
+          SubnetId:
+            Ref: "PrivateSubnet1"
