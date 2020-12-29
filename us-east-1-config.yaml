@@ -1,9 +1,8 @@
 global:
   region: us-east-1
-  release: develop
   sync_base: ./
   sync_dirs: [
-    '*'
+    'cloudformation'
   
   ]
   sync_exclude: [
@@ -15,8 +14,15 @@ global:
   tags:
     Project: AWS-Practice
     Environment: Dev
-    Release : develop
   parameters:
     Project: AWS-Practice
+    Environment: Dev
+    CloudToolsBucket: aws-practice-us-east-1
+
+Main:
+  stack_name: Main
+  CloudToolsBucket: aws-practice-us-east-1
+  template: ./cloudformation/top.yaml
+  parameters:
     Environment: Dev
     CloudToolsBucket: aws-practice-us-east-1
