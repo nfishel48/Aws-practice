@@ -1,2 +1,58 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: Stack to create kubernetes control plane
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: Name of the environment to use in naming.
+  ClusterName:
+    Type: String
+    Description: Name of the Kubernetes cluster
+  VPC:
+    Type: String
+    Description: VPC that resources will belong too
+  SecurityGroup:
+    Type: String
+    Description: Security Group to place instances into
+  PublicSubnet1:
+    Type: String
+    Description: Public subnet in the vpc
+  PrivateSubnet1:
+    Type: String
+    Description: Private subnet in the vpc
+
+Resources:
+  ServiceRole:
+    Type: AWS::IAM::Role
+      Properties: 
+        AssumeRolePolicyDocument:
+          Statement:
+            - Action: sts:AssumeRole
+              Effect: Allow
+              Principal:
+                Service: eks.amazonaws.com
+          Version: 2012-10-17 
+        ManagedPolicyArns: 
+          - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+      Path: /
+      Tags:
+        - Key: Environment
+          Value: !Ref 'Environment'
+        - Key: Resource
+          Value: backup
+        - Key: Service
+          Value: !Ref 'Service'
+  Cluster:
+    Type: AWS::EKS::Cluster
+      Properties: 
+        KubernetesNetworkConfig: 
+          ServiceIpv4Cidr: 10.0.0.0/8
+        Name: !Ref ClusterName
+        ResourcesVpcConfig: 
+          SecurityGroupIds: 
+            - !Ref SecurityGroup
+          SubnetIds: 
+            - !Ref PublicSubnet1
+        RoleArn: !Ref ServiceRole
+
+

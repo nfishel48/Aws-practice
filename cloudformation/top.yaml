@@ -43,4 +43,8 @@ Resources:
       TemplateURL:  !Sub 'https://s3.${AWS::Region}.amazonaws.com/${CloudToolsBucket}/cloudformation/kubernetes.yaml'
       Parameters:
         EnvironmentName: !Ref Environment
-
+        ClusterName: TestCluster
+        VPC: !GetAtt VPC.Outputs.VPC
+        SecurityGroup: !GetAtt VPC.Outputs.MySecurityGroup
+        PublicSubnet1: !GetAtt VPC.Outputs.PublicSubnet1
+        PrivateSubnet1: !GetAtt VPC.Outputs.PrivateSubnet1
