@@ -23,10 +23,17 @@ Resources:
         EnvironmentName: !Ref Environment
         KeyName: Bastion Host
         KeyNameTwo: Jenkins Box
-  Kubernetes:
+  iam:
     Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL:  !Sub 'https://s3.${AWS::Region}.amazonaws.com/${CloudToolsBucket}/cloudformation/kubernetes.yaml'
+      TemplateURL: !Sub 'https://s3.${AWS::Region}.amazonaws.com/${CloudToolsBucket}/cloudformation/iam.yaml'
+      Parameters:
+        EnvironmentName: !Ref Environment
+
+  eks:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL:  !Sub 'https://s3.${AWS::Region}.amazonaws.com/${CloudToolsBucket}/cloudformation/eks.yaml'
       Parameters:
         EnvironmentName: !Ref Environment
         ClusterName: TestCluster
@@ -34,6 +41,7 @@ Resources:
         SecurityGroup: !GetAtt VPC.Outputs.MySecurityGroup
         PublicSubnet1: !GetAtt VPC.Outputs.PublicSubnet1
         PrivateSubnet1: !GetAtt VPC.Outputs.PrivateSubnet1
+        EksRole: !GetAtt iam.Outputs.EksRoleArn
   #Disabled currently
   # Ansible:
   #   Type: 'AWS::CloudFormation::Stack'
