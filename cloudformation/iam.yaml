@@ -1,6 +1,11 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: 'Iam roles'
 
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: Name of the environment to use in naming.
+
 Resources:
   eksClusterRole:
     Type: AWS::IAM::Role
@@ -21,5 +26,3 @@ Outputs:
   EksRoleArn:
     Description: The role that Amazon EKS will use to create AWS resources for Kubernetes clusters
     Value: !GetAtt eksClusterRole.Arn
-    Export:
-      Name: !Sub "${AWS::StackName}-RoleArn"

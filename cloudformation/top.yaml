@@ -40,7 +40,7 @@ Resources:
         VPC: !GetAtt VPC.Outputs.VPC
         SecurityGroup: !GetAtt VPC.Outputs.MySecurityGroup
         PublicSubnet1: !GetAtt VPC.Outputs.PublicSubnet1
-        PrivateSubnet1: !GetAtt VPC.Outputs.PrivateSubnet1
+        PublicSubnet2: !GetAtt VPC.Outputs.PublicSubnet2
         EksRole: !GetAtt iam.Outputs.EksRoleArn
   #Disabled currently
   # Ansible:
