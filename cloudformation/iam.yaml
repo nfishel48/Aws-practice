@@ -22,7 +22,26 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
 
+  eksNodeRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ec2.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+
 Outputs:
   EksRoleArn:
     Description: The role that Amazon EKS will use to create AWS resources for Kubernetes clusters
     Value: !GetAtt eksClusterRole.Arn
+  EksNodeRoleArn:
+    Description: The role that Amazon EKS will use to create Node groups
+    Value: !GetAtt eksNodeRole.Arn

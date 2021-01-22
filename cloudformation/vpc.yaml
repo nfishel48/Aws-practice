@@ -253,26 +253,26 @@ Resources:
       Roles:
         - !Ref AdminRole
 
-  BastionEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t2.micro
-      ImageId:
-        Fn::FindInMap:
-          - RegionMap
-          - !Ref AWS::Region
-          - AMI
-      Tags:
-        - Key: Name
-          Value: "Bastion Host"
-      KeyName: !Ref KeyName
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: true
-          DeviceIndex: "0"
-          GroupSet:
-            - Ref: "MySecurityGroup"
-          SubnetId:
-            Ref: "PublicSubnet1"
+  # BastionEC2Instance:
+  #   Type: AWS::EC2::Instance
+  #   Properties:
+  #     InstanceType: t2.micro
+  #     ImageId:
+  #       Fn::FindInMap:
+  #         - RegionMap
+  #         - !Ref AWS::Region
+  #         - AMI
+  #     Tags:
+  #       - Key: Name
+  #         Value: "Bastion Host"
+  #     KeyName: !Ref KeyName
+  #     NetworkInterfaces:
+  #       - AssociatePublicIpAddress: true
+  #         DeviceIndex: "0"
+  #         GroupSet:
+  #           - Ref: "MySecurityGroup"
+  #         SubnetId:
+  #           Ref: "PublicSubnet1"
   
   MySecurityGroup:
     Type: AWS::EC2::SecurityGroup
@@ -289,74 +289,74 @@ Resources:
           ToPort: 8080
           CidrIp: 0.0.0.0/0
           
-  JenkinsBox:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: t2.micro
-      ImageId:
-        Fn::FindInMap:
-          - RegionMap
-          - !Ref AWS::Region
-          - AMI
-      Tags:
-        - Key: Name
-          Value: "Jenkins Box"
-      KeyName: !Ref KeyNameTwo
-      UserData: !Base64
-              Fn::Sub: |
-                  #!/bin/bash
-                  sudo su
-                  yum update -y
-                  yum install java-1.8.0-openjdk
-                  wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
-                  rpm --import http://pkg.jenkins-ci.org/redhat-stable/jenkins-ci.org.key
-                  yum install jenkins -y
-                  chkconfig jenkins on
+  # JenkinsBox:
+  #   Type: AWS::EC2::Instance
+  #   Properties:
+  #     InstanceType: t2.micro
+  #     ImageId:
+  #       Fn::FindInMap:
+  #         - RegionMap
+  #         - !Ref AWS::Region
+  #         - AMI
+  #     Tags:
+  #       - Key: Name
+  #         Value: "Jenkins Box"
+  #     KeyName: !Ref KeyNameTwo
+  #     UserData: !Base64
+  #             Fn::Sub: |
+  #                 #!/bin/bash
+  #                 sudo su
+  #                 yum update -y
+  #                 yum install java-1.8.0-openjdk
+  #                 wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+  #                 rpm --import http://pkg.jenkins-ci.org/redhat-stable/jenkins-ci.org.key
+  #                 yum install jenkins -y
+  #                 chkconfig jenkins on
                     
-      NetworkInterfaces:
-        - AssociatePublicIpAddress: true
-          DeviceIndex: "0"
-          GroupSet:
-            - Ref: "MySecurityGroup"
-          SubnetId:
-            Ref: "PrivateSubnet1"
+  #     NetworkInterfaces:
+  #       - AssociatePublicIpAddress: true
+  #         DeviceIndex: "0"
+  #         GroupSet:
+  #           - Ref: "MySecurityGroup"
+  #         SubnetId:
+  #           Ref: "PrivateSubnet1"
 
-  JenkinsWebHook:
-    Type: AWS::Lambda::Function
-    Properties:
-      Role: arn:aws:iam::401730102264:role/lamda-role
-      Runtime: nodejs12.x
-      Handler: index.handler
-      Code:
-        ZipFile: |
-          const http = require('http')
-          exports.handler = (event, context, callback) => { 
-            var auth = 'Basic ' + Buffer.from('test:114b0a912a8c569c936a49e4cc1df2184e').toString('base64');
-            var options = {
-              host: '10.192.20.128',
-              path: '/job/SampleFlaskApp/job/Hello%20World/job/master/build?delay=0sec',
-              port: '80',
-              method: 'POST',
-              headers: { 'Authorization': auth }
-              };
-              const req = http.request(options, (res) => {
-              res.setEncoding('utf8');
-              res.on('data', (chunk) => {
-              // if you need the returned data modify here
-              });
-              res.on('end', () => {
-              callback(null, 'Jenkins job triggered successfully')
-              });
-            });
-            req.on('error', (e) => {
-            console.log(e)
-            callback(null, "An error occurred while triggering Jenkins job.");
-            });
-            req.end();
-            };     
-      Description: Invoke a function during stack creation.
-      TracingConfig:
-        Mode: Active
+  # JenkinsWebHook:
+  #   Type: AWS::Lambda::Function
+  #   Properties:
+  #     Role: arn:aws:iam::401730102264:role/lamda-role
+  #     Runtime: nodejs12.x
+  #     Handler: index.handler
+  #     Code:
+  #       ZipFile: |
+  #         const http = require('http')
+  #         exports.handler = (event, context, callback) => { 
+  #           var auth = 'Basic ' + Buffer.from('test:114b0a912a8c569c936a49e4cc1df2184e').toString('base64');
+  #           var options = {
+  #             host: '10.192.20.128',
+  #             path: '/job/SampleFlaskApp/job/Hello%20World/job/master/build?delay=0sec',
+  #             port: '80',
+  #             method: 'POST',
+  #             headers: { 'Authorization': auth }
+  #             };
+  #             const req = http.request(options, (res) => {
+  #             res.setEncoding('utf8');
+  #             res.on('data', (chunk) => {
+  #             // if you need the returned data modify here
+  #             });
+  #             res.on('end', () => {
+  #             callback(null, 'Jenkins job triggered successfully')
+  #             });
+  #           });
+  #           req.on('error', (e) => {
+  #           console.log(e)
+  #           callback(null, "An error occurred while triggering Jenkins job.");
+  #           });
+  #           req.end();
+  #           };     
+  #     Description: Invoke a function during stack creation.
+  #     TracingConfig:
+  #       Mode: Active
 
 
 
